@@ -28,7 +28,6 @@ function App() {
 
   const runBlur = async () => {
     const net = await bodyPix.load(bodyPixConfig);
-    console.log(videoRef)
     setInterval(() => {
       blurBackground(net)
     }, 10)
@@ -39,7 +38,6 @@ function App() {
       const video = webcamRef.current.video;
       const videoHeight = video.videoHeight;
       const videoWidth = video.videoWidth;
-      console.log(video)
 
       webcamRef.current.video.height = videoHeight
       webcamRef.current.video.width = videoWidth

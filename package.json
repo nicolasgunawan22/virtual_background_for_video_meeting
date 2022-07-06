@@ -3,11 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@mediapipe/pose": "^0.5.1635988162",
     "@mediapipe/selfie_segmentation": "^0.1.1632777926",
     "@tensorflow-models/body-pix": "^2.2.0",
-    "@tensorflow-models/body-segmentation": "^1.0.1",
-    "@tensorflow-models/pose-detection": "^2.0.0",
     "@tensorflow/tfjs": "^3.18.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
