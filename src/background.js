@@ -5,8 +5,8 @@ export const drawBlur = async (webcam, canvas, net, segmentConfig) => {
       requestAnimationFrame(drawMask);
       if (Boolean(webcam) && Boolean(canvas) && webcam.readyState === 4) {
          const person = await net.segmentPerson(webcam, segmentConfig);
-         const backgroundBlurAmount = 5;
-         const edgeBlurAmount = 5;
+         const backgroundBlurAmount = 8;
+         const edgeBlurAmount = 8;
          const flipHorizontal = false;
 
          bodyPix.drawBokehEffect(
