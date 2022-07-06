@@ -1,21 +1,36 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "@tensorflow/tfjs";
+import "@tensorflow/tfjs-core";
+import "@tensorflow/tfjs-converter";
+import "@tensorflow/tfjs-backend-webgl";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import Webcam from "react-webcam"
+
+import { blurBackground } from './blur-background'
+import { drawImage } from './virtual-background'
 
 import './App.css';
 
 function App() {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const videoRef = useRef(null);
 
-  const bodyPixConfig = {
-    architecture: 'MobileNetV1',
-    outputStride: 16,
-    multiplier: 0.75,
-    quantBytes: 2,
-  }
+  const [model, setModel] = useState();
+  const [prevClassName, setPrevClassName] = useState();
+
+  useEffect(() => {
+    const bodyPixConfig = {
+      architecture: 'MobileNetV1',
+      outputStride: 16,
+      multiplier: 0.75,
+      quantBytes: 2,
+    }
+    const loadModel = async () => {
+      const net = await bodyPix.load(bodyPixConfig)
+      setModel(net)
+    }
+    loadModel()
+  }, [])
 
   const segmentConfig = {
     maxDetections: 5,
@@ -26,79 +41,34 @@ function App() {
     segmentationThreshold: 0.7,
   }
 
-  const runBlur = async () => {
-    const net = await bodyPix.load(bodyPixConfig);
-    setInterval(() => {
-      blurBackground(net)
-    }, 10)
-  }
-
-  const blurBackground = async (net) => {
-    if (typeof webcamRef.current !== "undefined" && webcamRef.current !== null && webcamRef.current.video.readyState === 4) {
-      const video = webcamRef.current.video;
-      const videoHeight = video.videoHeight;
-      const videoWidth = video.videoWidth;
-
-      webcamRef.current.video.height = videoHeight
-      webcamRef.current.video.width = videoWidth
-
-      canvasRef.current.height = videoHeight
-      canvasRef.current.width = videoWidth
-
-      const person = await net.segmentPerson(video, segmentConfig);
-
-      const backgroundBlurAmount = 5;
-      const edgeBlurAmount = 5;
-      const flipHorizontal = false;
-
-      bodyPix.drawBokehEffect(
-        canvasRef.current,
-        video,
-        person,
-        backgroundBlurAmount,
-        edgeBlurAmount,
-        flipHorizontal
-      );
+  const runBlur = () => {
+    if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(model)) {
+      const webcam = webcamRef.current.video;
+      const canvas = canvasRef.current;
+      webcam.width = canvas.width = webcam.videoWidth;
+      webcam.height = canvas.height = webcam.videoHeight;
+      blurBackground(webcam, canvas, model, segmentConfig)
     }
   }
 
-  runBlur();
-
-  // const runBlur2 = async () => {
-  //   const constraints = { video: true, audio: false };
-  //   try {
-  //     let stream = await navigator.mediaDevices.getUserMedia(constraints);
-  //     videoRef.current.srcObject = stream;
-  //     videoRef.current.onloadedmetadata = async () => {
-  //       videoRef.current.play();
-  //       const net = await bodyPix.load(bodyPixConfig);
-  //       setInterval(() => {
-  //         blurBackground2(net)
-  //       }, 0)
-  //     };
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // }
-
-  // const blurBackground2 = async (net) => {
-  //   if (typeof videoRef.current !== "undefined" && videoRef.current !== null) {
-  //     const segmentation = await net.segmentPerson(videoRef.current, segmentConfig);
-  //     const backgroundBlurAmount = 3;
-  //     const edgeBlurAmount = 3;
-  //     const flipHorizontal = false;
-  //     bodyPix.drawBokehEffect(
-  //       canvasRef.current,
-  //       videoRef.current,
-  //       segmentation,
-  //       backgroundBlurAmount,
-  //       edgeBlurAmount,
-  //       flipHorizontal
-  //     );
-  //   }
-  // }
-
-  // runBlur2();
+  const clickHandler = async (webcamRef, canvasRef, className) => {
+    const webcam = webcamRef.current.video;
+    const canvas = canvasRef.current;
+    webcam.width = canvas.width = webcam.videoWidth;
+    webcam.height = canvas.height = webcam.videoHeight;
+    const context = canvas.getContext("2d");
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    if (prevClassName) {
+      canvas.classList.remove(prevClassName);
+      setPrevClassName(className);
+    } else {
+      setPrevClassName(className);
+    }
+    canvas.classList.add(className);
+    if (model) {
+      drawImage(webcam, context, canvas, model);
+    }
+  };
 
   return (
     <div className="App">
@@ -106,8 +76,6 @@ function App() {
         <Webcam
           ref={webcamRef}
           audio={false}
-          height={480}
-          width={640}
           style={{
             position: "absolute",
             margin: "0 auto",
@@ -115,25 +83,10 @@ function App() {
             right: 0,
             textAlign: "center",
             zIndex: 9,
-            width: 640,
             height: 480,
+            width: 640,
           }}
         />
-        {/* <video
-          ref={videoRef}
-          height={480}
-          width={640}
-          style={{
-            position: "absolute",
-            margin: "0 auto",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zIndex: 9,
-            width: 640,
-            height: 480,
-          }}
-        /> */}
         <canvas
           ref={canvasRef}
           style={{
@@ -143,11 +96,19 @@ function App() {
             right: 0,
             textAlign: "center",
             zIndex: 9,
-            width: 640,
             height: 480,
+            width: 640,
           }}
         />
       </header>
+      <div style={{ bottom: 0 }} >
+        <button onClick={() => runBlur()}>
+          Blur
+        </button>
+        <button onClick={() => clickHandler(webcamRef, canvasRef, 'background')}>
+          Background
+        </button>
+      </div>
     </div>
   );
 }
