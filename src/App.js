@@ -6,8 +6,7 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import Webcam from "react-webcam"
 
-import { blurBackground } from './blur-background'
-import { drawImage } from './virtual-background'
+import { drawBlur, drawImage } from './background'
 
 import './App.css';
 
@@ -41,17 +40,17 @@ function App() {
     segmentationThreshold: 0.7,
   }
 
-  const runBlur = () => {
+  const handleBlurBackground = () => {
     if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(model)) {
       const webcam = webcamRef.current.video;
       const canvas = canvasRef.current;
       webcam.width = canvas.width = webcam.videoWidth;
       webcam.height = canvas.height = webcam.videoHeight;
-      blurBackground(webcam, canvas, model, segmentConfig)
+      drawBlur(webcam, canvas, model, segmentConfig)
     }
   }
 
-  const clickHandler = async (webcamRef, canvasRef, className) => {
+  const handleImageBackground = async (webcamRef, canvasRef, className) => {
     const webcam = webcamRef.current.video;
     const canvas = canvasRef.current;
     webcam.width = canvas.width = webcam.videoWidth;
@@ -72,44 +71,51 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <Webcam
-          ref={webcamRef}
-          audio={false}
-          style={{
-            position: "absolute",
-            margin: "0 auto",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zIndex: 9,
-            height: 480,
-            width: 640,
-          }}
-        />
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: "absolute",
-            margin: "0 auto",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zIndex: 9,
-            height: 480,
-            width: 640,
-          }}
-        />
-      </header>
-      <div style={{ bottom: 0 }} >
-        <button onClick={() => runBlur()}>
+      <Webcam
+        ref={webcamRef}
+        audio={false}
+        style={{
+          position: "absolute",
+          margin: "32px auto",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9,
+          height: 480,
+          width: 640,
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "absolute",
+          margin: "32px auto",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9,
+          height: 480,
+          width: 640,
+        }}
+      />
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        marginBottom: "64px",
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        gap: 10
+      }}>
+        <button onClick={() => handleBlurBackground()}>
           Blur
         </button>
-        <button onClick={() => clickHandler(webcamRef, canvasRef, 'background')}>
+        <button onClick={() => handleImageBackground(webcamRef, canvasRef, 'background')}>
           Background
         </button>
       </div>
-    </div>
+    </div >
   );
 }
 

@@ -1,5 +1,26 @@
 import * as bodyPix from "@tensorflow-models/body-pix";
 
+export const drawBlur = async (webcam, canvas, net, segmentConfig) => {
+   (async function drawMask() {
+      requestAnimationFrame(drawMask);
+      if (Boolean(webcam) && Boolean(canvas) && webcam.readyState === 4) {
+         const person = await net.segmentPerson(webcam, segmentConfig);
+         const backgroundBlurAmount = 5;
+         const edgeBlurAmount = 5;
+         const flipHorizontal = false;
+
+         bodyPix.drawBokehEffect(
+            canvas,
+            webcam,
+            person,
+            backgroundBlurAmount,
+            edgeBlurAmount,
+            flipHorizontal
+         );
+      }
+   })();
+}
+
 export const drawImage = async (webcam, context, canvas, model) => {
    const tempCanvas = document.createElement("canvas");
    tempCanvas.width = webcam.videoWidth;
@@ -10,6 +31,7 @@ export const drawImage = async (webcam, context, canvas, model) => {
       requestAnimationFrame(drawMask);
       const segmentation = await model.segmentPerson(webcam);
       const mask = bodyPix.toMask(segmentation);
+      console.log(mask)
       tempCtx.putImageData(mask, 0, 0);
       context.drawImage(webcam, 0, 0, canvas.width, canvas.height);
       context.save();
