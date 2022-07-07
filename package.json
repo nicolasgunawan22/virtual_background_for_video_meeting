@@ -9,6 +9,7 @@
     "@tensorflow-models/body-segmentation": "^1.0.1",
     "@tensorflow-models/pose-detection": "^2.0.0",
     "@tensorflow/tfjs": "^3.18.0",
+    "@tensorflow/tfjs-backend-wasm": "^3.18.0",
     "@tensorflow/tfjs-backend-webgl": "^3.18.0",
     "@tensorflow/tfjs-converter": "^3.18.0",
     "@tensorflow/tfjs-core": "^3.18.0",
@@ -20,6 +21,7 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "react-webcam": "^7.0.1",
+    "scatter-gl": "0.0.13",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
