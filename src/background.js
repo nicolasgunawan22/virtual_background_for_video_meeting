@@ -55,7 +55,7 @@ export const drawImage = async (webcamRef, canvasRef, imageRef, model, segmentCo
 }
 
 export const drawScreenShared = async (webcam, canvas, videoPreviewRef, net, segmentConfig, setLoading) => {
-   if (videoPreviewRef) {
+   if (webcam && canvas && videoPreviewRef && net) {
       const videoPreview = videoPreviewRef.current
       const ctx = canvas.getContext("2d");
 

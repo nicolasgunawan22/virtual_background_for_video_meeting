@@ -34,14 +34,24 @@ function App() {
     mediaStreamConstraints: { audio: false, video: { width: 640, height: 480 } }
   });
 
+  const segmentConfig = {
+    maxDetections: 5,
+    scoreThreshold: 0.3,
+    nmsRadius: 20,
+    flipHorizontal: true,
+    internalResolution: 'medium',
+    segmentationThreshold: 0.75,
+    minKeypointScore: 0.3,
+    refineSteps: 10
+  }
+
   useEffect(() => {
     const bodyPixConfig = {
       architecture: 'MobileNetV1',
       outputStride: 16,
-      multiplier: 0.5,
+      multiplier: 0.75,
       quantBytes: 2,
     }
-
 
     const loadModel = async () => {
       const net = await bodyPix.load(bodyPixConfig)
@@ -50,14 +60,7 @@ function App() {
     loadModel()
   }, [])
 
-  const segmentConfig = {
-    maxDetections: 5,
-    scoreThreshold: 0.3,
-    nmsRadius: 20,
-    flipHorizontal: true,
-    internalResolution: 'medium',
-    segmentationThreshold: 0.75,
-  }
+
 
   const handleBlurBackground = () => {
     if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(model)) {
