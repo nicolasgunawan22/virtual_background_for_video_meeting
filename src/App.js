@@ -21,21 +21,12 @@ function App() {
   const imageInputRef = useRef(null)
 
   const [model, setModel] = useState();
-  const [audio, setAudio] = useState(false);
-  const [background, setBackground] = useState({
-    blur: false,
-    image: false,
-    screen: false,
-  })
   const [isLoading, setLoading] = useState(false);
-  console.log(isLoading)
 
   let {
     error,
     status,
-    stopRecording,
     getMediaStream,
-    startRecording,
     liveStream
   } = useMediaRecorder({
     recordScreen: true,
@@ -70,38 +61,29 @@ function App() {
 
   const handleBlurBackground = () => {
     if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(model)) {
-      background.blur
-        ? setBackground({ blur: false, image: false, screen: false })
-        : setBackground({ blur: true, image: false, screen: false })
 
       const webcam = webcamRef.current.video;
       const canvas = canvasRef.current;
       webcam.width = canvas.width = webcam.videoWidth;
       webcam.height = canvas.height = webcam.videoHeight;
-      drawBlur(webcam, canvas, model, segmentConfig, background.blur, setLoading)
+      drawBlur(webcam, canvas, model, segmentConfig, setLoading)
     }
   }
 
 
   const handleImageBackground = (webcamRef, canvasRef, imageRef) => {
-    background.image
-      ? setBackground({ blur: false, image: false, screen: false })
-      : setBackground({ blur: false, image: true, screen: false })
-
-    drawImage(webcamRef, canvasRef, imageRef, model, segmentConfig, background.image, setLoading);
+    if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(imageRef) && Boolean(model)) {
+      drawImage(webcamRef, canvasRef, imageRef, model, segmentConfig, setLoading);
+    }
   };
 
   const handleScreenSharedBackground = () => {
     if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(videoPreviewRef) && Boolean(model)) {
-      background.screen
-        ? setBackground({ blur: false, image: false, screen: false })
-        : setBackground({ blur: false, image: false, screen: true })
-
       const webcam = webcamRef.current.video;
       const canvas = canvasRef.current;
       webcam.width = canvas.width = webcam.videoWidth;
       webcam.height = canvas.height = webcam.videoHeight;
-      drawScreenShared(webcam, canvas, videoPreviewRef, model, segmentConfig, background.screen, setLoading)
+      drawScreenShared(webcam, canvas, videoPreviewRef, model, segmentConfig, setLoading)
     }
   }
 
@@ -264,14 +246,6 @@ function App() {
         >
           <h2 style={{ marginBottom: 0 }}>Screen Sharing</h2>
           <p style={{ margin: 0 }}><b>Status</b>: {error ? `${status.replace('_', ' ')} ${error.message}` : status}</p>
-          {/* <label>
-            Enable microphone
-            <input
-              type="checkbox"
-              checked={audio}
-              onChange={() => setAudio((prevState) => !prevState)}
-            />
-          </label> */}
           <button
             className="custom-button"
             type="button"
@@ -280,20 +254,6 @@ function App() {
           >
             Share screen
           </button>
-          {/* <button
-              type="button"
-              onClick={startRecording}
-              disabled={status === 'recording'}
-            >
-              Start recording
-            </button>
-            <button
-              type="button"
-              onClick={stopRecording}
-              disabled={status !== 'recording'}
-            >
-              Stop recording
-            </button> */}
           <Preview stream={liveStream} videoPreviewRef={videoPreviewRef} />
         </div>
       </div>

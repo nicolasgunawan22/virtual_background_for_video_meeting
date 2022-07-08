@@ -1,6 +1,6 @@
 import * as bodyPix from "@tensorflow-models/body-pix";
 
-export const drawBlur = async (webcam, canvas, net, segmentConfig, isBlur, setLoading) => {
+export const drawBlur = async (webcam, canvas, net, segmentConfig, setLoading) => {
    (async function drawMask() {
       requestAnimationFrame(drawMask);
       if (Boolean(webcam) && Boolean(canvas) && webcam.readyState === 4) {
@@ -22,7 +22,7 @@ export const drawBlur = async (webcam, canvas, net, segmentConfig, isBlur, setLo
    })();
 }
 
-export const drawImage = async (webcamRef, canvasRef, imageRef, model, segmentConfig, isImage, setLoading) => {
+export const drawImage = async (webcamRef, canvasRef, imageRef, model, segmentConfig, setLoading) => {
    const webcam = webcamRef.current.video;
    const canvas = canvasRef.current;
    const image = imageRef.current;
