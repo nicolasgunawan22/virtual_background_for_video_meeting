@@ -4,9 +4,7 @@ import "@tensorflow/tfjs";
 import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-converter";
 import "@tensorflow/tfjs-backend-webgl";
-import '@mediapipe/selfie_segmentation';
 import * as bodyPix from "@tensorflow-models/body-pix";
-import * as bodySegmentation from "@tensorflow-models/body-segmentation"
 
 import Webcam from "react-webcam"
 import useMediaRecorder from '@wmik/use-media-recorder';
@@ -14,9 +12,6 @@ import useMediaRecorder from '@wmik/use-media-recorder';
 import { drawBlur, drawImage, drawScreenShared } from './background'
 import Preview from './preview';
 import './App.css';
-
-import '@mediapipe/pose';
-import '@tensorflow/tfjs-backend-wasm';
 
 function App() {
   const webcamRef = useRef(null);
@@ -26,13 +21,14 @@ function App() {
   const imageInputRef = useRef(null)
 
   const [model, setModel] = useState();
-  const [prevClassName, setPrevClassName] = useState();
   const [audio, setAudio] = useState(false);
   const [background, setBackground] = useState({
     blur: false,
     image: false,
     screen: false,
   })
+  const [isLoading, setLoading] = useState(false);
+  console.log(isLoading)
 
   let {
     error,
@@ -82,21 +78,21 @@ function App() {
       const canvas = canvasRef.current;
       webcam.width = canvas.width = webcam.videoWidth;
       webcam.height = canvas.height = webcam.videoHeight;
-      drawBlur(webcam, canvas, model, segmentConfig, background.blur)
+      drawBlur(webcam, canvas, model, segmentConfig, background.blur, setLoading)
     }
   }
 
-  const handleImageBackground = async (webcamRef, canvasRef, imageRef, className) => {
+
+  const handleImageBackground = (webcamRef, canvasRef, imageRef) => {
     background.image
       ? setBackground({ blur: false, image: false, screen: false })
       : setBackground({ blur: false, image: true, screen: false })
 
-    setPrevClassName(className);
-    drawImage(webcamRef, canvasRef, imageRef, model, segmentConfig, background.image);
+    drawImage(webcamRef, canvasRef, imageRef, model, segmentConfig, background.image, setLoading);
   };
 
-  const handleScreenSharedBackground = async () => {
-    if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(model)) {
+  const handleScreenSharedBackground = () => {
+    if (Boolean(webcamRef) && Boolean(canvasRef) && Boolean(videoPreviewRef) && Boolean(model)) {
       background.screen
         ? setBackground({ blur: false, image: false, screen: false })
         : setBackground({ blur: false, image: false, screen: true })
@@ -105,7 +101,7 @@ function App() {
       const canvas = canvasRef.current;
       webcam.width = canvas.width = webcam.videoWidth;
       webcam.height = canvas.height = webcam.videoHeight;
-      drawScreenShared(webcam, canvas, videoPreviewRef, model, segmentConfig, background.screen)
+      drawScreenShared(webcam, canvas, videoPreviewRef, model, segmentConfig, background.screen, setLoading)
     }
   }
 
@@ -131,7 +127,15 @@ function App() {
 
   return (
     <div className="App">
-      <div style={{ position: 'relative', width: '100%' }}>
+      <div
+        style={{
+          position: 'relative',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
         <Webcam
           ref={webcamRef}
           audio={false}
@@ -157,6 +161,16 @@ function App() {
             width: 640,
           }}
         />
+        {isLoading && (
+          <h3
+            style={{
+              position: 'absolute',
+              zIndex: 10,
+            }}
+          >
+            Loading...
+          </h3>
+        )}
       </div>
 
       <div
@@ -177,16 +191,40 @@ function App() {
           }}
         >
           <h2 style={{ marginBottom: 0 }}>Effects</h2>
-          <button className="custom-button" onClick={() => handleBlurBackground()}>
+          <button
+            className="custom-button"
+            onClick={() => {
+              setLoading(true);
+              handleBlurBackground();
+            }}
+          >
             Blur
           </button>
-          <button className="custom-button" onClick={() => handleImageBackground(webcamRef, canvasRef, imageRef, 'background')}>
+          <button
+            className="custom-button"
+            onClick={() => {
+              setLoading(true);
+              handleImageBackground(webcamRef, canvasRef, imageRef, 'background')
+            }}
+          >
             Image Background
           </button>
-          <button className="custom-button" onClick={() => handleScreenSharedBackground()}>
+          <button
+            className="custom-button"
+            onClick={() => {
+              setLoading(true);
+              handleScreenSharedBackground();
+            }}
+          >
             Screen Shared Background
           </button>
-          <button className="custom-button" onClick={() => handleClearEffect()}>
+          <button
+            className="custom-button"
+            onClick={() => {
+              setLoading(true);
+              handleClearEffect();
+            }}
+          >
             Clear Effect
           </button>
 
@@ -225,7 +263,7 @@ function App() {
           }}
         >
           <h2 style={{ marginBottom: 0 }}>Screen Sharing</h2>
-          <p style={{ marginBottom: 0 }}><b>Status</b>: {error ? `${status.replace('_', ' ')} ${error.message}` : status}</p>
+          <p style={{ margin: 0 }}><b>Status</b>: {error ? `${status.replace('_', ' ')} ${error.message}` : status}</p>
           {/* <label>
             Enable microphone
             <input
