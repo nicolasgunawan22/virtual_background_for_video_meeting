@@ -1,6 +1,6 @@
 import * as bodyPix from "@tensorflow-models/body-pix";
 
-export const drawBlur = async (webcam, canvas, net, segmentConfig) => {
+export const drawBlur = async (webcam, canvas, net, segmentConfig, isBlur) => {
    (async function drawMask() {
       requestAnimationFrame(drawMask);
       if (Boolean(webcam) && Boolean(canvas) && webcam.readyState === 4) {
@@ -21,61 +21,58 @@ export const drawBlur = async (webcam, canvas, net, segmentConfig) => {
    })();
 }
 
-export const drawImage = async (webcamRef, canvasRef, model, segmentConfig, className, prevClassName) => {
+export const drawImage = async (webcamRef, canvasRef, imageRef, model, segmentConfig, isImage) => {
    const webcam = webcamRef.current.video;
    const canvas = canvasRef.current;
+   const image = imageRef.current;
+
    webcam.width = canvas.width = webcam.videoWidth;
    webcam.height = canvas.height = webcam.videoHeight;
    const context = canvas.getContext("2d");
    context.clearRect(0, 0, canvas.width, canvas.height);
-   if (prevClassName) {
-      canvas.classList.remove(prevClassName);
-   }
-   canvas.classList.add(className);
+
    if (model) {
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = webcam.videoWidth;
       tempCanvas.height = webcam.videoHeight;
       const tempCtx = tempCanvas.getContext("2d");
 
-      (async function drawMask() {
-         requestAnimationFrame(drawMask);
+      async function drawMask() {
          const segmentation = await model.segmentPerson(webcam, segmentConfig);
          const mask = bodyPix.toMask(segmentation);
+         context.drawImage(image, 0, 0, canvas.width, canvas.height);
          tempCtx.putImageData(mask, 0, 0);
-         context.drawImage(webcam, 0, 0, canvas.width, canvas.height);
          context.save();
-         context.globalCompositeOperation = "destination-out";
+         context.globalCompositeOperation = "destination-in";
          context.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
          context.restore();
-      })();
+         requestAnimationFrame(drawMask);
+      };
+      requestAnimationFrame(drawMask);
    }
 }
 
 export const drawScreenShared = async (webcam, canvas, videoPreviewRef, net, segmentConfig) => {
    const videoPreview = videoPreviewRef.current
-
    const ctx = canvas.getContext("2d");
 
    const tempCanvas = document.createElement("canvas");
    const tempCtx = tempCanvas.getContext("2d");
    tempCanvas.height = webcam.videoHeight;
    tempCanvas.width = webcam.videoWidth;
-   canvas.classList.add('background');
-   (function step() {
-      // ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height)
-      // requestAnimationFrame(step)
-   })();
+   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
    (async function drawMask() {
-      requestAnimationFrame(drawMask);
       const person = await net.segmentPerson(webcam, segmentConfig);
       const mask = bodyPix.toMask(person);
-      tempCtx.putImageData(mask, 0, 0);
-      ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+
+      ctx.drawImage(videoPreview, 0, 0, canvas.width, canvas.height)
       ctx.save();
-      ctx.globalCompositeOperation = "destination-out";
+      tempCtx.putImageData(mask, 0, 0);
+      ctx.globalCompositeOperation = "destination-in";
       ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
       ctx.restore();
+
+      requestAnimationFrame(drawMask);
    })();
 }

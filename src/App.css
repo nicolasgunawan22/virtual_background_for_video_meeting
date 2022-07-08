@@ -2,9 +2,29 @@
   background-color: #404040;
   min-height: 100vh;
   color: white;
+  padding-bottom: 96px;
 }
 
 .background {
   background-image: url(https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=869&q=80);
   background-size: cover;
+}
+
+.custom-button {
+  width: 100%;
+  padding: 8px 20px;
+  cursor: pointer;
+}
+.image-preview {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.click-preview {
+  position: absolute;
+  width: 100%;
+  text-align: center;
 }

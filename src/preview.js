@@ -12,7 +12,7 @@ function Preview({ stream, videoPreviewRef }) {
       return null;
    }
 
-   return <video ref={videoPreviewRef} width={640} height={480} autoPlay style={{ position: 'absolute', right: 0, left: 0 }} />;
+   return <video ref={videoPreviewRef} width={640} height={480} autoPlay style={{ width: '100%', height: 'min-content' }} />;
 }
 
 export default Preview;
