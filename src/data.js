@@ -115,15 +115,15 @@ export const events = [
    },
    {
       id: 14,
-      title: 'Today',
-      start: new Date(new Date().setHours(new Date().getHours() - 3)),
-      end: new Date(new Date().setHours(new Date().getHours() + 3)),
+      title: 'Multi-day Event',
+      start: new Date(2022, 6, 14, 19, 30, 0),
+      end: new Date(2022, 6, 14, 2, 0, 0),
    },
    {
       id: 15,
       title: 'Point in Time Event',
-      start: now,
-      end: now,
+      start: new Date(2022, 6, 14, 17, 30, 0),
+      end: new Date(2022, 6, 14, 18, 0, 0),
    },
    {
       id: 16,
