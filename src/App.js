@@ -5,9 +5,8 @@ import {
   Route,
 } from "react-router-dom";
 
-import Effects from "./effects"
-import Calendar from "./calendar"
-import BigCalendar from "./bigCalendar"
+import Effects from "./pages/effects"
+import BigCalendar from "./pages/calendar"
 
 function App() {
 
@@ -15,8 +14,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Effects />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/calendar-2" element={<BigCalendar />} />
+        <Route path="/calendar" element={<BigCalendar />} />
       </Routes>
     </BrowserRouter>
   );

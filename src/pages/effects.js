@@ -9,9 +9,9 @@ import * as bodyPix from "@tensorflow-models/body-pix";
 import Webcam from "react-webcam"
 import useMediaRecorder from '@wmik/use-media-recorder';
 
-import { drawBlur, drawImage, drawScreenShared } from './background'
-import Preview from './preview';
-import './App.css';
+import { drawBlur, drawImage, drawScreenShared } from '../utils/helpers/background'
+import Preview from '../preview';
+import '../App.css';
 
 function Effects() {
    const webcamRef = useRef(null);
